@@ -15,7 +15,6 @@ const uint8_t SECTOR_SENSORS[N_OF_SECTORS] = { A4, A5, A0, A2, A3, A1 };
 const int SECTOR_LEDS[N_OF_SECTORS] = { 3, 5, 6, 11, 10, 9 };
 
 uint8_t current_pwm_levels[N_OF_SECTORS];
-int thresholds[N_OF_SECTORS];
 uint8_t waves_left[N_OF_SECTORS];
 
 /**************************************************************************/
