@@ -15,12 +15,30 @@ const int SECTOR_LEDS[N_OF_SECTORS] = { 3, 5, 6, 11, 10, 9 };
 
 uint8_t current_pwm_levels[N_OF_SECTORS];
 
-//int8_t sensor_order[N_OF_SECTORS];
+/**************************************************************************/
 
+int thresholds[N_OF_SECTORS];
 
 /**************************************************************************/
 
-int threshold;
+void calibrate() {
+  while (millis() < 1000) { // Compute average ambient light value
+    for (uint8_t i = 0; i < N_OF_SECTORS; ++i) {
+      thresholds[i] = (analogRead(SECTOR_SENSORS[i]) + thresholds[i]) >> 1;
+    }
+  }
+
+  for (uint8_t i = 0; i < N_OF_SECTORS; ++i) {
+    thresholds[i] += 20; // Set threshold to ambient + 20 points
+
+    // DEBUG: Print current threshhold
+    Serial.print( "threshold [" );
+    Serial.print( i );
+    Serial.print( "] = " );
+    Serial.println( thresholds[i] );
+  }
+  
+}
 
 /**************************************************************************/
 
@@ -33,12 +51,14 @@ void activate_leds() { // Set current PWM levels for all LEDs
 /**************************************************************************/
 
 void set_led_levels() {
+  
   for (uint8_t i = 0; i < N_OF_SECTORS; ++i) {
     int sensorValue = analogRead(SECTOR_SENSORS[i]);
     delay(1);        // delay in between reads for stability
     
-    if (sensorValue > threshold + 20) {
+    if (sensorValue > thresholds[i]) {
       current_pwm_levels[i] = LED_MAX_BRIGHTNESS;
+      waves_left[i] = N_OF_WAVES;
     }
     else {
       if (current_pwm_levels[i] != 0 ) {
@@ -46,12 +66,14 @@ void set_led_levels() {
       }
     }
   }
+
 }
 
 /**************************************************************************/
 
 // the setup routine runs once when you press reset:
 void setup() {
+  
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
 
@@ -59,36 +81,24 @@ void setup() {
     pinMode(SECTOR_LEDS[i], OUTPUT);
   }
 
-  pinMode(2, INPUT); // DEBUG: Light up LED 1 on button press
+  calibrate();
 
-  while (millis() < 1000) { // Compute average ambient light value
-    threshold = (analogRead(A4) + threshold) >> 1;
-  }
-
-  threshold += 20; // Set threshold to ambient + 20 points
-
-  // DEBUG: Print current threshhold
-  Serial.print( "threshold = " );
-  Serial.println( threshold );
-
-  //memset(sensor_order, 0, sizeof(int8_t) * N_OF_SECTORS);
   memset(current_pwm_levels, 0, sizeof(uint8_t) * N_OF_SECTORS);
+  memset(waves_left, 0, sizeof(uint8_t) * N_OF_SECTORS);
+  
 }
 
 /**************************************************************************/
 
 // the loop routine runs over and over again forever:
 void loop() {
-  set_led_levels();
   
-//  if (digitalRead(2) == LOW) { // DEBUG: Light up LED 1 on button press
-//    current_pwm_levels[1] = LED_MAX_BRIGHTNESS;
-//  }
+  set_led_levels();
   
   activate_leds();
 
-  
   delay(10);
+  
 }
 
 /**************************************************************************/
