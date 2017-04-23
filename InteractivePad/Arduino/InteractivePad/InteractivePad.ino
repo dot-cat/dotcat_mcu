@@ -9,11 +9,14 @@
 
 #define N_OF_SECTORS 6
 #define LED_MAX_BRIGHTNESS 127
+#define N_OF_WAVES 2
 
 const uint8_t SECTOR_SENSORS[N_OF_SECTORS] = { A4, A5, A0, A2, A3, A1 };
 const int SECTOR_LEDS[N_OF_SECTORS] = { 3, 5, 6, 11, 10, 9 };
 
 uint8_t current_pwm_levels[N_OF_SECTORS];
+int thresholds[N_OF_SECTORS];
+uint8_t waves_left[N_OF_SECTORS];
 
 /**************************************************************************/
 
@@ -64,9 +67,14 @@ void set_led_levels() {
       if (current_pwm_levels[i] != 0 ) {
         --current_pwm_levels[i];
       }
+      else {
+        if (waves_left[i] != 0) {
+          current_pwm_levels[i] = LED_MAX_BRIGHTNESS;
+          --waves_left[i];
+        }
+      }
     }
   }
-
 }
 
 /**************************************************************************/
