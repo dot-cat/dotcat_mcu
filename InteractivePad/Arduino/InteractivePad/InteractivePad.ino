@@ -58,7 +58,6 @@ void set_led_levels() {
     
     if (sensorValue > thresholds[i]) {
       current_pwm_levels[i] = LED_MAX_BRIGHTNESS;
-      waves_left[i] = N_OF_WAVES;
     }
     else {
       if (current_pwm_levels[i] != 0 ) {
@@ -84,7 +83,6 @@ void setup() {
   calibrate();
 
   memset(current_pwm_levels, 0, sizeof(uint8_t) * N_OF_SECTORS);
-  memset(waves_left, 0, sizeof(uint8_t) * N_OF_SECTORS);
   
 }
 
