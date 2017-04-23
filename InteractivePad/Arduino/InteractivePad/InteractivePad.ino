@@ -10,8 +10,8 @@
 #define N_OF_SECTORS 6
 #define LED_MAX_BRIGHTNESS 127
 
-const uint8_t SECTOR_SENSORS[N_OF_SECTORS] = { A0, A1, A2, A3, A4, A5 };
-const int SECTOR_LEDS[N_OF_SECTORS] = { 3, 5, 6, 9, 10, 11 };
+const uint8_t SECTOR_SENSORS[N_OF_SECTORS] = { A4, A5, A0, A2, A3, A1 };
+const int SECTOR_LEDS[N_OF_SECTORS] = { 3, 5, 6, 11, 10, 9 };
 
 uint8_t current_pwm_levels[N_OF_SECTORS];
 
@@ -62,7 +62,7 @@ void setup() {
   pinMode(2, INPUT); // DEBUG: Light up LED 1 on button press
 
   while (millis() < 1000) { // Compute average ambient light value
-    threshold = (analogRead(A0) + threshold) >> 1;
+    threshold = (analogRead(A4) + threshold) >> 1;
   }
 
   threshold += 20; // Set threshold to ambient + 20 points
@@ -80,9 +80,11 @@ void setup() {
 // the loop routine runs over and over again forever:
 void loop() {
   set_led_levels();
-  if (digitalRead(2) == LOW) { // DEBUG: Light up LED 1 on button press
-    current_pwm_levels[1] = LED_MAX_BRIGHTNESS;
-  }
+  
+//  if (digitalRead(2) == LOW) { // DEBUG: Light up LED 1 on button press
+//    current_pwm_levels[1] = LED_MAX_BRIGHTNESS;
+//  }
+  
   activate_leds();
 
   
