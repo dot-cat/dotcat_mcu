@@ -1,0 +1,2 @@
+pyserial  # For listener_serial and other UART-based modules
+pyautogui # Send keystrokes
