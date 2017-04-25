@@ -15,6 +15,8 @@ const int SECTOR_LEDS[N_OF_SECTORS] = { 3, 5, 6, 11, 10, 9 };
 
 uint8_t current_pwm_levels[N_OF_SECTORS];
 
+bool gesture_started = false;
+
 /**************************************************************************/
 
 int thresholds[N_OF_SECTORS];
@@ -51,6 +53,7 @@ void activate_leds() { // Set current PWM levels for all LEDs
 /**************************************************************************/
 
 void set_led_levels() {
+  bool no_interrupts = true;
   
   for (uint8_t i = 0; i < N_OF_SECTORS; ++i) {
     int sensorValue = analogRead(SECTOR_SENSORS[i]);
@@ -58,6 +61,9 @@ void set_led_levels() {
     
     if (sensorValue > thresholds[i]) {
       current_pwm_levels[i] = LED_MAX_BRIGHTNESS;
+
+      no_interrupts = false;
+      gesture_started = true;
     }
     else {
       if (current_pwm_levels[i] != 0 ) {
@@ -66,6 +72,49 @@ void set_led_levels() {
     }
   }
 
+  if (gesture_started && no_interrupts) {
+    dispatch_gesture();
+    gesture_started = false;
+  }
+
+}
+
+/**************************************************************************/
+
+void dispatch_gesture() {
+  
+
+  //if (gesture_started) {
+    if (current_pwm_levels[0] < current_pwm_levels[1] 
+     && current_pwm_levels[1] < current_pwm_levels[2]
+     && current_pwm_levels[0] > 0
+    ) {
+      Serial.println( "right" );
+    }
+    else if (current_pwm_levels[3] < current_pwm_levels[4] 
+     && current_pwm_levels[4] < current_pwm_levels[5]
+     && current_pwm_levels[3] > 0
+    ) {
+      Serial.println( "right" );
+    }
+
+    else if (current_pwm_levels[0] > current_pwm_levels[1] 
+     && current_pwm_levels[1] > current_pwm_levels[2]
+     && current_pwm_levels[2] > 0
+    ) {
+      Serial.println( "left" );
+    }
+
+    else if (current_pwm_levels[3] > current_pwm_levels[4] 
+     && current_pwm_levels[4] > current_pwm_levels[5]
+     && current_pwm_levels[5] > 0
+    ) {
+      Serial.println( "left" );
+    }
+
+   // gesture_started = false;
+  //}
+  
 }
 
 /**************************************************************************/
@@ -94,6 +143,8 @@ void loop() {
   set_led_levels();
   
   activate_leds();
+
+  
 
   delay(10);
   
